@@ -7,5 +7,8 @@ import (
 
 func main() {
 	http.HandleFunc("/", handler.Home)
+	http.HandleFunc("/person/insert", handler.InsertPerson)
+	http.HandleFunc("/person/getByCedula", handler.GetPerson)
+	http.HandleFunc("/person/all", handler.GetAllPerson)
 	http.ListenAndServe(":3000", nil)
 }

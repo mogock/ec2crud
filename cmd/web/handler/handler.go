@@ -2,22 +2,15 @@ package handler
 
 import (
 	"database/sql"
+	json2 "encoding/json"
+	//xml2 "encoding/xml"
 	"fmt"
 	"log"
 	"net/http"
 	_ "github.com/lib/pq"
+	"mogock.com/ec2crud/pkg/models/postgres"
+	"mogock.com/ec2crud/pkg/models"
 )
-import "mogock.com/ec2crud/pkg/models/postgres"
-
-/*
-type application struct {
-	errorLog *log.Logger
-	infoLog *log.Logger
-	person *postgres.PersonModel
-}
- */
-
-//var person = *postgres.PersonModel
 
 var db *sql.DB
 
@@ -29,24 +22,79 @@ func init() {
 		log.Fatal(err)
 	}
 
+	//Connection Pool Setting
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(5)
 
-	if err = db.Ping(); err != nil { //Muy Interensante
+	if err = db.Ping(); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
-	//p := &postgres.PersonModel{DB: db}
-	//content, error := p.Latest();
-	//cp, err := p.Get("22600051399")
-	/*cp, err := p.Insert("52300051875", "Rosa", "Hernandez")
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte("Server is running"))
+}
+
+func InsertPerson(w http.ResponseWriter, request *http.Request) {
+	var p models.Person
+	err := json2.NewDecoder(request.Body).Decode(&p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	conn := &postgres.PersonModel{DB: db}
+	cp, err := conn.Insert(p.Cedula, p.Nombre, p.Apellido)
 	if err != nil {
 		log.Println("And error happens")
 		return
 	}
-	fmt.Println(cp)
-	*/
-	w.Write([]byte("This is my home page", ))
+	fmt.Fprintf(w, "Person: %+v", cp)
+}
+
+func GetPerson (w http.ResponseWriter, request *http.Request) {
+	if request.Method != "GET" {
+		http.Error(w, http.StatusText(405), 405)
+		return
+	}
+	cedula := request.FormValue("cedula")
+	if cedula == "" {
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	pModel := &postgres.PersonModel{DB: db}
+	person, error := pModel.Get(cedula);
+	if error != nil {
+		http.Error(w, "failed", 500)
+		return
+	}
+
+	jsonRosponse, err := json2.Marshal(person)
+	if err != nil {
+		http.Error(w, "failed", 500)
+		return
+	}
+	w.Write(jsonRosponse)
+}
+
+func GetAllPerson(w http.ResponseWriter, request *http.Request) {
+	if request.Method != "GET" {
+		http.Error(w, http.StatusText(405), 405)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	pModel := &postgres.PersonModel{DB: db}
+	persons, error := pModel.Latest();
+	if error != nil {
+		http.Error(w, "failed", 500)
+		return
+	}
+	jsonRosponse, err := json2.Marshal(persons)
+	if err != nil {
+		http.Error(w, "failed", 500)
+		return
+	}
+	w.Write(jsonRosponse)
 }

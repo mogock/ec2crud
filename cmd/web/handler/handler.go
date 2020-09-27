@@ -17,7 +17,7 @@ var db *sql.DB
 //Stard Database Connection
 func init() {
 	var err error
-	db, err = sql.Open("postgres", "postgres://gosta:86Chota34..Ene@gosta.c3de3fnfq0uc.us-east-1.rds.amazonaws.com:5432/gosta?sslmode=disable")	//Se usa igual si las variable fueron creadas
+	db, err = sql.Open("postgres", "postgres://gosta:.....@gosta.c3de3fnfq0uc.us-east-1.rds.amazonaws.com:5432/gosta?sslmode=disable")	//Se usa igual si las variable fueron creadas
 	if err != nil {
 		log.Fatal(err)
 	}

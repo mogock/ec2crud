@@ -38,12 +38,15 @@ func init() {
 }
 
 func Home(w http.ResponseWriter, r *http.Request) {
-	p := &postgres.PersonModel{DB: db}
-	content, error := p.Latest();
-	if error != nil {
+	//p := &postgres.PersonModel{DB: db}
+	//content, error := p.Latest();
+	//cp, err := p.Get("22600051399")
+	/*cp, err := p.Insert("52300051875", "Rosa", "Hernandez")
+	if err != nil {
 		log.Println("And error happens")
 		return
 	}
-	fmt.Println(content)
-	w.Write([]byte("This is my home page"))
+	fmt.Println(cp)
+	*/
+	w.Write([]byte("This is my home page", ))
 }
